@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<header>
+	<meta charset="UTF-8">
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="../static/js/jquery-3.3.1.js"></script> <!-- fallback -->
+	
+	<style>
+		.warning{
+			color:red;
+		}
+	</style>
+	
+</header>
+<body>
+<main>
+	<form method="POST">
+		
+		<fieldset>
+			<legend>Cama</legend>
+			<input type="text" id="bed" name="bed" placeholder="Temperatura de la cama" maxlength="3" required>
+			
+			<span id="bed_current_temp">0°</span>
+			<span id="bed_temp_input"> / 0°</span>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Punta</legend>
+			<input type="text" id="nozzle" name="nozzle" placeholder="Temperatura de la punta" maxlength="3" required>
+			
+			<span id="nozzle_current_temp">0°</span>
+			<span id="nozzle_temp_input"> / 0°</span>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Env</legend>
+			<input type="text" id="env" name="env" placeholder="Temperatura del ambiente" maxlength="3" required>
+			
+			<span id="env_current_temp">0°</span>
+			<span id="env_temp_input"> / 0°</span>
+		</fieldset>
+		
+		<input type="submit" value="Calentar">
+		<input type="button" value="Detener">
+	</form>
+</main>
+
+<script>
+	$(document).ready(function(){
+		
+		//RUNS WHEN THE FORM IS SUBMITTED
+		$('form').on('submit', function(event){
+
+			var bedTemp = $("#bed").val(),
+				nozzleTemp = $("#nozzle").val(),
+				envTemp = $("#env").val();
+				
+			////////
+			//INPUT VALIDATION PROCESS
+			////////
+			
+			//CHECKS IF ANY OF THE INPUTS IS NOT A NUMBER
+			if(isNaN(bedTemp) || isNaN(nozzleTemp) || isNaN(envTemp)){
+				
+				
+				//VALIDATES A NUMBER-TYPE INPUT AS BED'S TEMPERATURE
+				if(isNaN(bedTemp)){
+					var warning = document.createElement("span"),
+						warning_text = document.createTextNode("Introduzca un número");
+						
+					warning.appendChild(warning_text);
+					
+					$(warning).attr('id','warning');
+					$(warning).attr('class','warning');
+					
+					$('fieldset')[0].appendChild(warning);
+					$("#bed").val('');
+					
+					
+					$("#bed").focus(function(){
+						
+						$("#warning").remove();
+					});
+				}
+				
+				
+				// '' NOZZLE'S TEMPERATURE
+				if(isNaN(nozzleTemp)){
+					var warning = document.createElement("span"),
+						warning_text = document.createTextNode("Introduzca un número");
+						
+					warning.appendChild(warning_text);
+					
+					$(warning).attr('id','warning2');
+					$(warning).attr('class','warning');
+					
+					$('fieldset')[1].appendChild(warning);
+					$("#nozzle").val('');
+					
+					
+					$("#nozzle").focus(function(){
+						
+						$("#warning2").remove();
+					});
+				}
+				
+				
+				// '' ENV'S TEMPERATURE
+				if(isNaN(envTemp)){
+					var warning = document.createElement("span"),
+						warning_text = document.createTextNode("Introduzca un número");
+						
+					warning.appendChild(warning_text);
+					
+					$(warning).attr('id','warning3');
+					$(warning).attr('class','warning');
+
+					$('fieldset')[2].appendChild(warning);
+					$("#env").val('');
+					
+					$("#env").focus(function(){
+						
+						$("#warning3").remove();
+					});
+				}
+			}
+			
+			
+			////////
+			//IF ALL THE INPUT ARE NUMBERS, SENDS THE FORM DATA TO /getTemperature IN THE BACK-END
+			////////
+			else{
+				
+				//PRINTS THE INPUT VALUES AS AIM TEMPERATURES ( 0° / -> 100° <- )
+				$("#bed_temp_input").html("/ " + bedTemp + "°");
+				$("#nozzle_temp_input").html("/ " + nozzleTemp + "°");
+				$("#env_temp_input").html("/ " + envTemp + "°");
+				
+				//DO NOT PUT THIS BEFORE THE TRANSFER (IT CLEARS THE INPUTS)
+				//$("#bed").val('');
+				//$("#nozzle").val('');
+				//$("#env").val('');
+				
+				$.ajax({
+					
+					data: $('form').serialize(),
+					type: 'POST',
+					url: '/getTemperatures'
+				})
+				//CLEARS THE INPUTS
+				.done(function(){
+					$("#bed").val('');
+					$("#nozzle").val('');
+					$("#env").val('');
+				});
+			}
+			
+			event.preventDefault();
+		});
+	});
+	
+</script>
+
+</body>
+</html>
+
+
+
+
